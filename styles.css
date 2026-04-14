@@ -9,12 +9,28 @@ body {
 }
 
 #game-container {
-    text-align: center;
+    display: flex;
+    align-items: center;
+    gap: 20px;
 }
 
 #score {
     font-size: 24px;
     margin-bottom: 10px;
+}
+
+#next-pieces {
+    text-align: center;
+}
+
+#next-pieces h3 {
+    margin-bottom: 10px;
+}
+
+#next-1, #next-2, #next-3 {
+    border: 1px solid #333;
+    margin: 5px;
+    display: block;
 }
 
 canvas {

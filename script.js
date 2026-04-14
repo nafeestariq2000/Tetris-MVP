@@ -9,6 +9,8 @@ const BLOCK_SIZE = 30;
 let board = Array.from({ length: ROWS }, () => Array(COLS).fill(0));
 let score = 0;
 let gameOver = false;
+let paused = false;
+let nextPieces = [];
 
 // Tetromino shapes
 const TETROMINOES = {
@@ -80,8 +82,16 @@ function getRandomTetromino() {
     return TETROMINOES[randomKey];
 }
 
+function generateNext() {
+    while (nextPieces.length < 3) {
+        nextPieces.push(getRandomTetromino());
+    }
+}
+
 function spawnPiece() {
-    currentPiece = getRandomTetromino();
+    currentPiece = nextPieces.shift();
+    generateNext();
+    drawNextPieces();
     currentX = Math.floor(COLS / 2) - Math.floor(currentPiece.shape[0].length / 2);
     currentY = 0;
 
@@ -199,9 +209,41 @@ function draw() {
     }
 }
 
+if (paused) {
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+    ctx.fillRect(0, canvas.height / 2 - 40, canvas.width, 80);
+    ctx.fillStyle = '#000';
+    ctx.font = '30px Arial';
+    ctx.fillText('PAUSED', canvas.width / 2 - 60, canvas.height / 2 + 10);
+}
+
+function drawNextPieces() {
+    for (let i = 0; i < 3; i++) {
+        const canvas = document.getElementById(`next-${i+1}`);
+        const ctx = canvas.getContext('2d');
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        const piece = nextPieces[i];
+        if (piece) {
+            const miniBlock = 10;
+            ctx.fillStyle = piece.color;
+            for (let row = 0; row < piece.shape.length; row++) {
+                for (let col = 0; col < piece.shape[row].length; col++) {
+                    if (piece.shape[row][col]) {
+                        ctx.fillRect(col * miniBlock, row * miniBlock, miniBlock, miniBlock);
+                        ctx.strokeStyle = '#000';
+                        ctx.strokeRect(col * miniBlock, row * miniBlock, miniBlock, miniBlock);
+                    }
+                }
+            }
+        }
+    }
+}
+
 function gameLoop() {
-    if (!gameOver) {
+    if (!gameOver && !paused) {
         movePiece(0, 1); // Drop down
+        draw();
+    } else if (paused) {
         draw();
     } else {
         ctx.fillStyle = '#FFF';
@@ -225,13 +267,19 @@ document.addEventListener('keydown', (e) => {
         case 'ArrowUp':
             rotatePiece();
             break;
+        case 'p':
+        case 'P':
+            paused = !paused;
+            break;
     }
     draw();
 });
 
 function init() {
+    generateNext();
     spawnPiece();
     draw();
+    drawNextPieces();
     setInterval(gameLoop, 1000); // Drop every second
 }
 
