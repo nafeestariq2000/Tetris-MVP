@@ -132,6 +132,14 @@ function rotatePiece() {
     }
 }
 
+function getDropPosition() {
+    let dropY = currentY;
+    while (!isCollision(currentX, dropY + 1, currentPiece.shape)) {
+        dropY++;
+    }
+    return dropY;
+}
+
 function movePiece(dx, dy) {
     if (!isCollision(currentX + dx, currentY + dy, currentPiece.shape)) {
         currentX += dx;
@@ -157,6 +165,23 @@ function draw() {
                 ctx.strokeRect(col * BLOCK_SIZE, row * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
             }
         }
+    }
+
+    // Draw ghost piece
+    if (currentPiece) {
+        const dropY = getDropPosition();
+        ctx.globalAlpha = 0.3;
+        ctx.fillStyle = currentPiece.color;
+        for (let row = 0; row < currentPiece.shape.length; row++) {
+            for (let col = 0; col < currentPiece.shape[row].length; col++) {
+                if (currentPiece.shape[row][col]) {
+                    ctx.fillRect((currentX + col) * BLOCK_SIZE, (dropY + row) * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
+                    ctx.strokeStyle = '#000';
+                    ctx.strokeRect((currentX + col) * BLOCK_SIZE, (dropY + row) * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
+                }
+            }
+        }
+        ctx.globalAlpha = 1.0;
     }
 
     // Draw current piece
