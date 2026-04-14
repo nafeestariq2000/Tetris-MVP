@@ -11,6 +11,7 @@ let score = 0;
 let gameOver = false;
 let paused = false;
 let nextPieces = [];
+let pieceCount = 0;
 
 // Tetromino shapes
 const TETROMINOES = {
@@ -122,14 +123,19 @@ function placePiece() {
 }
 
 function clearLines() {
+    let linesCleared = 0;
     for (let row = ROWS - 1; row >= 0; row--) {
         if (board[row].every(cell => cell !== 0)) {
             board.splice(row, 1);
             board.unshift(Array(COLS).fill(0));
-            score += 100;
-            scoreElement.textContent = `Score: ${score}`;
+            linesCleared++;
             row++; // Check the same row again
         }
+    }
+    if (linesCleared > 0) {
+        const scores = [0, 100, 300, 500, 800];
+        score += scores[linesCleared] || 800;
+        scoreElement.textContent = `Score: ${score}`;
     }
 }
 
@@ -157,9 +163,18 @@ function movePiece(dx, dy) {
     } else if (dy > 0) {
         // Hit bottom
         placePiece();
+        pieceCount++;
+        if (pieceCount % 10 === 0) {
+            triggerPowerUp();
+        }
         clearLines();
         spawnPiece();
     }
+}
+
+function triggerPowerUp() {
+    paused = true;
+    document.getElementById('power-up').style.display = 'block';
 }
 
 function draw() {
@@ -281,6 +296,16 @@ function init() {
     draw();
     drawNextPieces();
     setInterval(gameLoop, 1000); // Drop every second
+
+    document.querySelectorAll('#power-up button').forEach(button => {
+        button.addEventListener('click', () => {
+            const piece = button.dataset.piece;
+            nextPieces[0] = TETROMINOES[piece];
+            drawNextPieces();
+            document.getElementById('power-up').style.display = 'none';
+            paused = false;
+        });
+    });
 }
 
 init();

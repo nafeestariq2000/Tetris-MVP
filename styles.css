@@ -38,6 +38,17 @@ canvas {
     background-color: #000;
 }
 
+#power-up {
+    text-align: center;
+}
+
+#power-up button {
+    margin: 5px;
+    padding: 10px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
 #controls {
     margin-top: 10px;
     font-size: 14px;
